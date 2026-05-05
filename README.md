@@ -1,0 +1,1 @@
+这是一个可以辅助agent写geant4项目的skill，此skill由Claudecode接入xiaomimimo后使用skill-creator编写的
