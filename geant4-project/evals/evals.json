@@ -1,0 +1,23 @@
+{
+  "skill_name": "geant4-project",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我创建一个Geant4项目，模拟10MeV的中子打向铝靶，我想要一个完整的可以编译运行的项目",
+      "expected_output": "A complete Geant4 project with CMakeLists.txt, main file, DetectorConstruction, PrimaryGeneratorAction, and visualization macro. All code should have Chinese comments.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我想在我的Geant4模拟中添加数据收集功能，记录粒子在靶中的能量沉积和位置信息，然后输出到ROOT文件",
+      "expected_output": "Action classes (RunAction, EventAction, SteppingAction) for data collection with ROOT output. Should explain how to register them in main.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我想模拟一个伽马射线源，能量在1到10MeV之间随机分布，各向同性发射，打到一个圆柱形的锗探测器上",
+      "expected_output": "PrimaryGeneratorAction with random energy and isotropic direction, DetectorConstruction with cylindrical germanium detector. Should explain physics list choice.",
+      "files": []
+    }
+  ]
+}
