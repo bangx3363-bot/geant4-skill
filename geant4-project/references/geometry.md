@@ -1,5 +1,17 @@
 # Geometry Reference
 
+## Table of Contents
+
+- [Coordinate System](#coordinate-system)
+- [Solids (Shapes)](#solids-shapes)
+- [Logical Volume](#logical-volume)
+- [Physical Volume (Placement)](#physical-volume-placement)
+- [Rotation](#rotation)
+- [Materials](#materials)
+- [Volume Hierarchy](#volume-hierarchy)
+- [Checking Overlaps](#checking-overlaps)
+- [Common Patterns](#common-patterns)
+
 Geant4 uses a hierarchical geometry where volumes are placed inside other volumes.
 The top-level volume is always the "World" volume.
 

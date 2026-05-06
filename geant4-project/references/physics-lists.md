@@ -1,5 +1,14 @@
 # Physics Lists Reference
 
+## Table of Contents
+
+- [How to Choose](#how-to-choose)
+- [Built-in Reference Physics Lists](#built-in-reference-physics-lists)
+- [Energy Ranges](#energy-ranges)
+- [Adding HP (High Precision) for Neutrons](#adding-hp-high-precision-for-neutrons)
+- [Custom Physics Lists](#custom-physics-lists)
+- [Common Mistakes](#common-mistakes)
+
 Physics lists determine which particles and interactions are simulated in Geant4.
 Choosing the right physics list is critical for accurate results.
 
@@ -12,25 +21,50 @@ Ask these questions:
 
 ## Built-in Reference Physics Lists
 
+**Geant4 11.4+ recommends `FTFP_BERT` as the default general-purpose physics list.**
+`QGSP_BERT_HP` is still under validation and not recommended for production physics studies.
+
 ### High Energy Physics (HEP)
 
 | Physics List | Description | Best For |
 |--------------|-------------|----------|
-| QGSP_BERT | Quark Gluon String Precompound + Bertini cascade | General HEP, >1 GeV |
-| QGSP_BERT_HP | QGSP_BERT + High Precision neutron | Neutron transport, reactor physics |
-| QGSP_BIC | QGSP + Binary Cascade | Better for <10 GeV hadronic |
+| FTFP_BERT | FTF (Fritiof) + Bertini cascade | **Default** for general purpose |
+| FTFP_BERT_HP | FTFP_BERT + High Precision neutron | Neutron transport, reactor physics |
+| FTFP_INCLXX | FTF + INCL++ (Liege model) | Spallation, ADS |
+| FTFP_INCLXX_HP | FTFP_INCLXX + High Precision neutron | Spallation with neutrons |
+| FTF_BIC | FTF + Binary cascade | Alternative to FTFP_BERT |
+| QGSP_BERT | QGS (Quark-Gluon String) + Bertini | Legacy general HEP, >1 GeV |
+| QGSP_BERT_HP | QGSP_BERT + High Precision neutron | Neutron transport (legacy) |
+| QGSP_BIC | QGS + Binary cascade | Better for <10 GeV hadronic |
 | QGSP_BIC_HP | QGSP_BIC + High Precision neutron | Low energy neutrons with ions |
-| FTFP_BERT | Fritiof + Bertini | Alternative to QGSP, good for muons |
-| FTFP_BERT_HP | FTFP_BERT + HP neutron | Neutron applications with FTFP |
+| QBBC | Binary cascade based | Medical physics, mixed particles |
 
-### Electromagnetic Physics
+### Electromagnetic Physics Constructors
 
-| Physics List | Description | Best For |
-|--------------|-------------|----------|
-| EmStandard | Standard EM | General purpose |
-| EmLivermore | Low energy EM (Livermore data) | <1 MeV gamma/electron |
-| EmPenelope | Low energy EM (Penelope data) | Medical physics, <1 MeV |
-| EmStandard_opt4 | Optimized for LHC | High energy colliders |
+These are **not standalone physics lists** — they are EM constructors to register in a custom physics list.
+All reference hadronic physics lists (FTFP_BERT, QGSP_BERT, etc.) already include standard EM physics.
+
+| Constructor Header | Description | Best For |
+|-------------------|-------------|----------|
+| G4EmStandardPhysics | Standard EM | General purpose (default in FTFP_BERT) |
+| G4EmLivermorePhysics | Low energy EM (Livermore data) | <1 MeV gamma/electron |
+| G4EmPenelopePhysics | Low energy EM (Penelope data) | Medical physics, <1 MeV |
+| G4EmStandardPhysics_option4 | Optimized for LHC | High energy colliders |
+
+Example: replacing standard EM with Livermore in a custom physics list:
+```cpp
+#include "G4VModularPhysicsList.hh"
+#include "G4EmLivermorePhysics.hh"
+#include "G4HadronPhysicsFTFP_BERT.hh"
+
+class MyPhysicsList : public G4VModularPhysicsList {
+public:
+    MyPhysicsList() {
+        RegisterPhysics(new G4EmLivermorePhysics);
+        RegisterPhysics(new G4HadronPhysicsFTFP_BERT);
+    }
+};
+```
 
 ### Specialized
 
@@ -39,14 +73,13 @@ Ask these questions:
 | Shielding | Shielding + HP neutron | Radiation shielding |
 | ShieldingLEND | Shielding + LEND neutron | Thermal neutron shielding |
 | NuBeam | Neutrino beam | Neutrino experiments |
-| RadioactiveDecay | Radioactive decay | Nuclear decays |
 
 ## Energy Ranges
 
-- **Very low energy (<1 keV)**: Use EmLivermore or EmPenelope
-- **Low energy (1 keV - 100 MeV)**: Use QGSP_BIC or FTFP_BERT
-- **High energy (>100 MeV)**: Use QGSP_BERT or FTFP_BERT
-- **Ultra high energy (>10 TeV)**: Use QGSP_BERT with appropriate hadronic model
+- **Very low energy (<1 keV)**: Use G4EmLivermorePhysics or G4EmPenelopePhysics
+- **Low energy (1 keV - 100 MeV)**: Use FTFP_BERT or QGSP_BIC
+- **High energy (>100 MeV)**: Use FTFP_BERT (default) or QGSP_BERT
+- **Ultra high energy (>10 TeV)**: Use FTFP_BERT with appropriate hadronic model
 
 ## Adding HP (High Precision) for Neutrons
 
@@ -69,8 +102,8 @@ This is rarely needed for beginners — suggest built-in lists first.
 
 ## Common Mistakes
 
-1. **Using EmStandard for low energy**: If simulating <1 MeV particles, EmLivermore or EmPenelope
-   will give more accurate results.
+1. **Using standard EM for low energy**: If simulating <1 MeV particles, G4EmLivermorePhysics or
+   G4EmPenelopePhysics will give more accurate results.
 2. **Forgetting HP for neutrons**: Without "_HP", neutron interactions below 20 MeV use
    parameterized models which are much less accurate.
 3. **Mixing physics constructors**: Don't mix electromagnetic physics from different lists.

@@ -1,5 +1,15 @@
 # Sensitive Detectors and Hit Collections Reference
 
+## Table of Contents
+
+- [Class Hierarchy](#class-hierarchy)
+- [Official Example: B2 Tracker](#official-example-b2-tracker)
+- [Creating a Sensitive Detector](#creating-a-sensitive-detector)
+- [Tracker Sensitive Detector](#tracker-sensitive-detector)
+- [Accessing Hits in EventAction](#accessing-hits-in-eventaction)
+- [Common Patterns](#common-patterns)
+- [When to Use Sensitive Detectors vs SteppingAction](#when-to-use-sensitive-detectors-vs-steppingaction)
+
 Sensitive detectors allow you to record detailed information about particle interactions
 in specific volumes. This is the proper way to collect data in Geant4.
 

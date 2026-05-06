@@ -1,5 +1,17 @@
 # Advanced Geometry Reference
 
+## Table of Contents
+
+- [Boolean Operations](#boolean-operations)
+- [Parameterized Volumes](#parameterized-volumes)
+- [Replicated Volumes](#replicated-volumes)
+- [Assembly Volumes](#assembly-volumes)
+- [Divided Volumes](#divided-volumes)
+- [Common Patterns](#common-patterns)
+- [Touchable Navigation](#touchable-navigation)
+- [Best Practices](#best-practices)
+- [Common Issues](#common-issues)
+
 Geant4 provides powerful geometry construction tools beyond simple shapes.
 This reference covers Boolean operations, parameterized volumes, and assembly volumes.
 

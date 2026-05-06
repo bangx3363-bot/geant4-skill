@@ -110,8 +110,8 @@ The main program sets up the RunManager with three required initializations. Use
 // 用户头文件
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
-// 物理列表：选择合适的内置物理列表
-#include "QGSP_BERT_HP.hh"
+// 物理列表：选择合适的内置物理列表（FTFP_BERT 是 Geant4 11.4+ 推荐的默认列表）
+#include "FTFP_BERT.hh"
 
 int main(int argc, char** argv)
 {
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
     // 第一步：探测器几何构造
     runManager->SetUserInitialization(new DetectorConstruction);
     // 第二步：物理过程（选择合适的物理列表）
-    G4VModularPhysicsList* physicsList = new QGSP_BERT_HP;
+    G4VModularPhysicsList* physicsList = new FTFP_BERT;
     physicsList->SetVerboseLevel(1);
     runManager->SetUserInitialization(physicsList);
     // 第三步：用户动作初始化（使用 ActionInitialization 模式）
@@ -168,13 +168,15 @@ int main(int argc, char** argv)
 
 ### 3.1 Create ActionInitialization
 
-The `ActionInitialization` class consolidates all user actions:
+The `ActionInitialization` class consolidates all user actions. For a minimal project,
+only `PrimaryGeneratorAction` is required. Add other actions when needed.
+
+**Minimal version (only PrimaryGeneratorAction):**
 
 ```cpp
 // include/ActionInitialization.hh
 #ifndef ACTION_INITIALIZATION_HH
 #define ACTION_INITIALIZATION_HH
-
 #include "G4VUserActionInitialization.hh"
 
 class ActionInitialization : public G4VUserActionInitialization
@@ -182,18 +184,29 @@ class ActionInitialization : public G4VUserActionInitialization
 public:
     ActionInitialization();
     ~ActionInitialization() override;
-
-    // 多线程模式下的主运行管理器调用
-    void BuildForMaster() const override;
-    // 单线程模式或工作线程调用
     void Build() const override;
 };
-
 #endif
 ```
 
 ```cpp
 // src/ActionInitialization.cc
+#include "ActionInitialization.hh"
+#include "PrimaryGeneratorAction.hh"
+
+ActionInitialization::ActionInitialization() {}
+ActionInitialization::~ActionInitialization() {}
+
+void ActionInitialization::Build() const
+{
+    SetUserAction(new PrimaryGeneratorAction);
+}
+```
+
+**Full version (with data collection) — add when user needs RunAction/EventAction/SteppingAction:**
+
+```cpp
+// src/ActionInitialization.cc (full version)
 #include "ActionInitialization.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "RunAction.hh"
@@ -212,15 +225,11 @@ void ActionInitialization::BuildForMaster() const
 
 void ActionInitialization::Build() const
 {
-    // 设置所有用户动作
     SetUserAction(new PrimaryGeneratorAction);
-
     RunAction* runAction = new RunAction;
     SetUserAction(runAction);
-
     EventAction* eventAction = new EventAction(runAction);
     SetUserAction(eventAction);
-
     SetUserAction(new SteppingAction(eventAction));
 }
 ```
@@ -311,15 +320,13 @@ G4VPhysicalVolume* XXXDetectorConstruction::Construct()
 
 ### 5. Create PrimaryGeneratorAction
 
-This defines the particle source (particle gun).
+This defines the particle source (particle gun). See `references/particles.md` for advanced options.
 
 ```cpp
 // include/PrimaryGeneratorAction.hh
 #ifndef PRIMARY_GENERATOR_ACTION_HH
 #define PRIMARY_GENERATOR_ACTION_HH
-
 #include "G4VUserPrimaryGeneratorAction.hh"
-
 class G4ParticleGun;
 class G4Event;
 
@@ -328,49 +335,31 @@ class XXXPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 public:
     XXXPrimaryGeneratorAction();
     ~XXXPrimaryGeneratorAction() override;
-
     void GeneratePrimaries(G4Event*) override;
-
 private:
     G4ParticleGun* fParticleGun;
 };
-
 #endif
 ```
 
 ```cpp
 // src/PrimaryGeneratorAction.cc
 #include "XXXPrimaryGeneratorAction.hh"
-
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4SystemOfUnits.hh"
 
 XXXPrimaryGeneratorAction::XXXPrimaryGeneratorAction()
 {
-    // 创建粒子枪，每次事件发射1个粒子
     fParticleGun = new G4ParticleGun(1);
-
-    // 获取粒子表
-    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-
-    // 设置粒子类型（例如：neutron, gamma, e-, proton, alpha...）
-    fParticleGun->SetParticleDefinition(particleTable->FindParticle("neutron"));
-
-    // 设置粒子能量
+    G4ParticleTable* table = G4ParticleTable::GetParticleTable();
+    fParticleGun->SetParticleDefinition(table->FindParticle("neutron"));
     fParticleGun->SetParticleEnergy(10 * MeV);
-
-    // 设置发射位置
     fParticleGun->SetParticlePosition(G4ThreeVector(-20 * cm, 0, 0));
-
-    // 设置发射方向（沿 +x 方向）
     fParticleGun->SetParticleMomentumDirection(G4ThreeVector(1, 0, 0));
 }
 
-XXXPrimaryGeneratorAction::~XXXPrimaryGeneratorAction()
-{
-    delete fParticleGun;
-}
+XXXPrimaryGeneratorAction::~XXXPrimaryGeneratorAction() { delete fParticleGun; }
 
 void XXXPrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
@@ -391,6 +380,8 @@ void XXXPrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 /vis/scene/endOfEventAction accumulate
 ```
 
+See `references/visualization.md` for more visualization options and camera controls.
+
 ## Physics List Selection Guide
 
 The physics list determines which particles and interactions are simulated. See
@@ -398,13 +389,16 @@ The physics list determines which particles and interactions are simulated. See
 
 | Use case | Recommended physics list |
 |----------|------------------------|
-| General purpose, high energy | QGSP_BERT |
-| Neutron transport (high precision) | QGSP_BERT_HP |
-| Electromagnetic only | EmStandard |
-| Low energy EM | EmLivermore, EmPenelope |
+| General purpose (default) | FTFP_BERT |
+| Neutron transport (high precision) | FTFP_BERT_HP |
 | Heavy ions | QGSP_BIC_HP |
-| Medical physics | QGSP_BIC_EMV |
+| Medical physics | QBBC |
+| Shielding applications | Shielding |
 
+Note: Geant4 11.4+ recommends `FTFP_BERT` as the default general-purpose list.
+`QGSP_BERT_HP` is still under validation and not recommended for production physics studies.
+For low-energy EM (<1 MeV), use a custom physics list with `G4EmLivermorePhysics` or
+`G4EmPenelopePhysics` constructors. See `references/physics-lists.md` for details.
 Always explain to the user why you chose a particular physics list.
 
 ## Common Geometry Shapes
@@ -446,8 +440,11 @@ For collecting simulation data, the user needs action classes:
 When the user wants to collect data, offer to create these classes and explain what data they should
 record based on their simulation goal.
 
-For detailed hit collection with custom data, see `references/sensitive-detectors.md`. For spatial
-energy deposition or dose distributions, see `references/scoring.md`.
+See `references/data-output.md` for per-event aggregation and per-step recording patterns with
+complete ActionInitialization examples. For detailed hit collection with custom data, see
+`references/sensitive-detectors.md`. For spatial energy deposition or dose distributions, see
+`references/scoring.md`. For particle source options, see `references/particles.md`.
+For visualization macros and drivers, see `references/visualization.md`.
 
 ## Modifying Existing Projects
 

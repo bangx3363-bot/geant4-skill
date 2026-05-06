@@ -1,5 +1,19 @@
 # Visualization Reference
 
+## Table of Contents
+
+- [Visualization Drivers](#visualization-drivers)
+- [Basic Visualization Macro (init_vis.mac)](#basic-visualization-macro-init_vismac)
+- [Viewing Styles](#viewing-styles)
+- [Camera Controls](#camera-controls)
+- [Color Coding by Volume](#color-coding-by-volume)
+- [Trajectory Display](#trajectory-display)
+- [Saving Images](#saving-images)
+- [Animation](#animation)
+- [Batch Mode Visualization](#batch-mode-visualization)
+- [Performance Tips](#performance-tips)
+- [Common Issues](#common-issues)
+
 Geant4 supports multiple visualization systems. For beginners, OpenGL (OGL) is recommended.
 
 ## Visualization Drivers

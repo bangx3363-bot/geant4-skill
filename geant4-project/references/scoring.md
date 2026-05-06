@@ -1,5 +1,20 @@
 # Scoring Reference
 
+## Table of Contents
+
+- [Scoring Methods](#scoring-methods)
+- [Mesh-Based Scoring](#mesh-based-scoring)
+- [Primitive Scorers](#primitive-scorers)
+- [Scoring Box Configuration](#scoring-box-configuration)
+- [Scoring Cylinder](#scoring-cylinder)
+- [Scoring Sphere](#scoring-sphere)
+- [Filtering](#filtering)
+- [Reading Scoring Results](#reading-scoring-results)
+- [Output Formats](#output-formats)
+- [Common Patterns](#common-patterns)
+- [Best Practices](#best-practices)
+- [Common Issues](#common-issues)
+
 Geant4 provides a scoring system for collecting spatial distributions of quantities
 like energy deposition, particle flux, and dose. This is useful for:
 - Dose distribution in medical physics

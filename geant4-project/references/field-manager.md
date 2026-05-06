@@ -1,5 +1,20 @@
 # Field Manager Reference
 
+## Table of Contents
+
+- [Basic Concepts](#basic-concepts)
+- [Official Example: B5 Magnetic Field](#official-example-b5-magnetic-field)
+- [Uniform Magnetic Field](#uniform-magnetic-field)
+- [Uniform Electric Field](#uniform-electric-field)
+- [Electromagnetic Field (Combined)](#electromagnetic-field-combined)
+- [Non-Uniform Fields](#non-uniform-fields)
+- [Field Properties Configuration](#field-properties-configuration)
+- [Equation of Motion](#equation-of-motion)
+- [Common Magnetic Field Configurations](#common-magnetic-field-configurations)
+- [Disabling Field in Specific Volumes](#disabling-field-in-specific-volumes)
+- [Common Issues](#common-issues)
+- [Example: Complete Field Setup](#example-complete-field-setup)
+
 Geant4 supports magnetic and electric fields that affect charged particle trajectories.
 Fields are configured through G4FieldManager objects attached to logical volumes.
 

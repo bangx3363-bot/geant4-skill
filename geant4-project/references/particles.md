@@ -1,5 +1,12 @@
 # Particle Source Reference
 
+## Table of Contents
+
+- [G4ParticleGun](#g4particlegun)
+- [G4GeneralParticleSource (GPS)](#g4generalparticlesource-gps)
+- [When to Use Which](#when-to-use-which)
+- [Tips](#tips)
+
 Geant4 provides two main ways to define particle sources:
 1. **G4ParticleGun** — simple single-particle source (recommended for beginners)
 2. **G4GeneralParticleSource (GPS)** — complex source with distributions
